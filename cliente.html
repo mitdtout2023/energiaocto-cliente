@@ -2,20 +2,22 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="EnergiaOcto">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1C6EFF">
 <title>EnergiaOcto ⚡</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{height:100%;background:#000}
-body{font-family:'DM Sans',-apple-system,'Helvetica Neue',sans-serif;background:#F2F4F8;color:#0F1923;height:100dvh;overflow:hidden;-webkit-font-smoothing:antialiased;padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);user-select:none;-webkit-user-select:none}
+html{height:100%;height:-webkit-fill-available;background:#000;overflow:hidden}
+body{font-family:'DM Sans',-apple-system,'Helvetica Neue',sans-serif;background:#F2F4F8;color:#0F1923;min-height:100vh;min-height:-webkit-fill-available;height:100dvh;max-height:100dvh;overflow:hidden;-webkit-font-smoothing:antialiased;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);user-select:none;-webkit-user-select:none;position:fixed;width:100%}
 
 /* ── SPLASH ── */
-#splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(170deg,#0D2B7E 0%,#1C6EFF 45%,#0A6B4B 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .55s,transform .55s}
+#splash{position:fixed;inset:0;top:0;left:0;right:0;bottom:0;z-index:9999;background:linear-gradient(170deg,#0D2B7E 0%,#1C6EFF 45%,#0A6B4B 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .55s,transform .55s;border:none;outline:none;padding:0;margin:0;width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent}
 #splash.out{opacity:0;transform:scale(1.06);pointer-events:none}
 .sp-icon{width:116px;height:116px;border-radius:30px;background:rgba(255,255,255,.15);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1.5px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:58px;margin-bottom:32px;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:spPop .7s cubic-bezier(.34,1.56,.64,1) .2s both}
 @keyframes spPop{from{opacity:0;transform:scale(.6) translateY(20px)}to{opacity:1;transform:none}}
@@ -31,7 +33,7 @@ body{font-family:'DM Sans',-apple-system,'Helvetica Neue',sans-serif;background:
 #errState{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;background:#F2F4F8;text-align:center}
 
 /* ── APP SHELL ── */
-#app{display:flex;flex-direction:column;height:100dvh;max-height:100dvh;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100%;max-height:100%;overflow:hidden;position:relative}
 .hdr{flex-shrink:0;padding:14px 20px 12px;background:#fff;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(0,0,0,.06);position:relative;z-index:10}
 .hdr-logo{font-size:22px;font-weight:900;color:#0F1923;letter-spacing:-.6px;line-height:1}
 .hdr-logo span{color:#1C6EFF}
@@ -204,13 +206,14 @@ body{font-family:'DM Sans',-apple-system,'Helvetica Neue',sans-serif;background:
 </head>
 <body>
 
-<!-- SPLASH -->
-<div id="splash">
+<!-- SPLASH — <button> para iOS reconhecer como user gesture para áudio -->
+<button id="splash" onclick="splashTapped()" aria-label="Toque para entrar">
   <div class="sp-icon" id="splashIcon">⚡</div>
   <div class="sp-title">Energia <span>Octo</span></div>
   <div class="sp-sub" id="splashSub">Monitor Inteligente de Energia</div>
   <div class="sp-bar"><div class="sp-bar-fill"></div></div>
-</div>
+  <div style="position:absolute;bottom:calc(32px + env(safe-area-inset-bottom));font-size:12px;color:rgba(255,255,255,.3);font-weight:500;letter-spacing:.4px;animation:spFade .4s ease 1.2s both">toque para começar</div>
+</button>
 
 <!-- ERROR STATE -->
 <div id="errState" style="display:none">
@@ -641,74 +644,123 @@ function seedDemoIfNeeded(id){
 }
 
 /* ════════════════════════════════════════
+   AUDIO — mesmo engine do admin
+════════════════════════════════════════ */
+var _ctx=null,_audioPlayed=false;
+function initAudio(){
+  if(!_ctx){try{_ctx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){return false;}}
+  if(_ctx.state==='suspended')_ctx.resume();
+  return _ctx.state!=='closed';
+}
+function _note(freq,start,dur,type,vol,atk,rel,bend){
+  if(!_ctx)return;
+  var t=_ctx.currentTime+start;
+  var osc=_ctx.createOscillator(),env=_ctx.createGain(),flt=_ctx.createBiquadFilter();
+  flt.type='lowpass';flt.frequency.value=3400;
+  osc.connect(flt);flt.connect(env);env.connect(_ctx.destination);
+  osc.type=type||'sine';
+  osc.frequency.setValueAtTime(freq,t);
+  if(bend)osc.frequency.linearRampToValueAtTime(freq+bend,t+dur);
+  env.gain.setValueAtTime(0.001,t);
+  env.gain.linearRampToValueAtTime(vol||0.12,t+(atk||0.04));
+  env.gain.setValueAtTime(vol||0.12,t+dur-(rel||0.15));
+  env.gain.linearRampToValueAtTime(0.001,t+dur);
+  osc.start(t);osc.stop(t+dur+0.05);
+}
+function playJingle(){
+  if(_audioPlayed)return;
+  if(!initAudio())return;
+  _audioPlayed=true;
+  _note(55,0,.85,'triangle',.06,.10,.30);
+  _note(110,0,.85,'triangle',.04,.10,.30);
+  [164.81,207.65,246.94].forEach(function(f){_note(f,.08,1.0,'sine',.06,.06,.2);});
+  [329.63,415.30,493.88,659.25,830.61,987.77].forEach(function(f,i){_note(f,i*.13,.22,'triangle',.11,.03,.08,6);});
+  [523.25,659.25,783.99,1046.50].forEach(function(f){_note(f,1.05,.90,'sine',.07,.06,.2);});
+  _note(1318.51,1.08,.70,'triangle',.09,.05,.35,18);
+  [2093,2637,3136].forEach(function(f,i){_note(f,1.18+i*.05,.50,'sine',.03,.03,.28);});
+  _note(659.25,1.85,.55,'sine',.05,.05,.45);
+}
+
+/* ════════════════════════════════════════
+   SPLASH TAPPED
+════════════════════════════════════════ */
+var _splashReady=false; // true depois que o perfil foi carregado
+
+function splashTapped(){
+  playJingle(); // inicia áudio (dentro do handler = válido no iOS)
+  var sp=document.getElementById('splash');
+  if(!sp)return;
+  if(!_splashReady){
+    // Perfil ainda não carregou — aguarda mais um pouco
+    setTimeout(function(){doCloseSplash();},800);
+    return;
+  }
+  doCloseSplash();
+}
+function doCloseSplash(){
+  var sp=document.getElementById('splash');
+  if(!sp)return;
+  sp.classList.add('out');
+  setTimeout(function(){if(sp.parentNode)sp.remove();},600);
+}
+
+/* ════════════════════════════════════════
    INIT — detecta CLIENT_ID e exibe app
 ════════════════════════════════════════ */
-window.addEventListener('load',()=>{
-  // Resolve qual ID usar:
-  // 1) ?id= na URL  →  usa esse cliente real
-  // 2) Sem ?id=     →  usa dados demo (preview / teste)
-  const resolvedId = CLIENT_ID || DEMO_ID;
+window.addEventListener('load', function() {
+  var resolvedId = CLIENT_ID || DEMO_ID;
+  if(!CLIENT_ID) seedDemoIfNeeded(DEMO_ID);
 
-  // Se não tem ?id=, semeia dados demo para o preview funcionar
-  if(!CLIENT_ID){
-    seedDemoIfNeeded(DEMO_ID);
+  var p = getPerfil(resolvedId);
+
+  // Personaliza o splash com nome do cliente
+  if(p){
+    var splashSub=document.getElementById('splashSub');
+    if(splashSub) splashSub.textContent=!CLIENT_ID?'Modo demonstração':'Olá, '+p.nome+'!';
+    document.title='EnergiaOcto — '+p.nome;
   }
 
-  setTimeout(()=>{
-    document.getElementById('splash').classList.add('out');
-    setTimeout(()=>document.getElementById('splash').remove(),600);
-
-    const p=getPerfil(resolvedId);
-
+  // Prepara o app em background (sem fechar splash ainda)
+  function launchApp(){
     if(!p){
-      // ID na URL mas não encontrado no storage
+      doCloseSplash();
       document.getElementById('errState').style.display='flex';
-      document.getElementById('errMsg').textContent=`Cliente não encontrado (id: ${resolvedId}). Verifique o link com o administrador ou abra o admin.html primeiro.`;
+      document.getElementById('errMsg').textContent=!CLIENT_ID?
+        'Sem ID de cliente na URL. Modo demo ativado.':
+        'Cliente não encontrado (id: '+resolvedId+'). Verifique o link.';
       return;
     }
-
     if(p.status==='inativo'){
+      doCloseSplash();
       document.getElementById('errState').style.display='flex';
-      document.getElementById('errMsg').textContent='Este acesso está inativo. Entre em contato com o administrador.';
+      document.getElementById('errMsg').textContent='Acesso inativo. Contate o administrador.';
       return;
     }
-
-    // Troca CLIENT_ID efetivo pelo resolvido
-    // (sobrescreve a constante de leitura via closure)
-    window._ACTIVE_ID = resolvedId;
-
-    // Personaliza splash
-    const splashSub=document.getElementById('splashSub');
-    if(splashSub) splashSub.textContent=!CLIENT_ID?'Modo demonstração':'Olá, '+p.nome+'!';
-
-    // Atualiza título da página
-    document.title=`EnergiaOcto — ${p.nome}`;
-
-    // Mostra app
+    window._ACTIVE_ID=resolvedId;
     document.getElementById('app').style.display='flex';
+    buildNav();renderInicio();updateHeader();
+    var av=document.getElementById('hdrAvatar');
+    av.textContent=p.emoji||'⚡';
+    av.style.background='linear-gradient(135deg,'+(p.cor||'#1C6EFF')+','+(p.cor||'#0AB5FF')+')';
+    av.onclick=function(){toast('⚡ '+p.nome+(p.distribuidora?' · '+p.distribuidora:''));};
+    _splashReady=true; // libera o splashTapped para fechar imediatamente
+  }
 
-    // Nav dinâmico conforme telas habilitadas para este cliente
-    buildNav();
-    renderInicio();
-    updateHeader();
+  // Pequeno delay para animar o splash
+  setTimeout(launchApp, 1200);
 
-    // Avatar personalizado
-    document.getElementById('hdrAvatar').textContent=p.emoji||'⚡';
-    document.getElementById('hdrAvatar').style.background=`linear-gradient(135deg,${p.cor||'#1C6EFF'},${p.cor||'#0AB5FF'})`;
-    document.getElementById('hdrAvatar').onclick=()=>{
-      if(!CLIENT_ID){
-        toast('🔍 Preview — abra com ?id=SEU_ID para ver seus dados');
-      } else {
-        toast('⚡ '+p.nome+(p.distribuidora?' · '+p.distribuidora:''));
-      }
-    };
-
-  }, 2000);
+  // Fallback: fecha splash após 8s se usuário não tocar
+  setTimeout(function(){
+    _splashReady=true;
+    doCloseSplash();
+  }, 8000);
 });
 
-// anti-zoom iOS
-let _lte=0;
-document.addEventListener('touchend',e=>{const n=Date.now();if(n-_lte<=300)e.preventDefault();_lte=n;},false);
+// Anti-zoom iOS — threshold menor para não bloquear toque
+var _lte=0;
+document.addEventListener('touchend',function(e){
+  var n=Date.now();if(n-_lte<=200)e.preventDefault();_lte=n;
+},{passive:false});
 </script>
 </body>
 </html>
