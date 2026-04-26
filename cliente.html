@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EnergiaOcto">
+<meta name="theme-color" content="#1C6EFF">
+<title>EnergiaOcto ⚡</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;background:#000}
+body{font-family:'DM Sans',-apple-system,'Helvetica Neue',sans-serif;background:#F2F4F8;color:#0F1923;height:100dvh;overflow:hidden;-webkit-font-smoothing:antialiased;padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);user-select:none;-webkit-user-select:none}
+
+/* ── SPLASH ── */
+#splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(170deg,#0D2B7E 0%,#1C6EFF 45%,#0A6B4B 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .55s,transform .55s}
+#splash.out{opacity:0;transform:scale(1.06);pointer-events:none}
+.sp-icon{width:116px;height:116px;border-radius:30px;background:rgba(255,255,255,.15);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1.5px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:58px;margin-bottom:32px;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:spPop .7s cubic-bezier(.34,1.56,.64,1) .2s both}
+@keyframes spPop{from{opacity:0;transform:scale(.6) translateY(20px)}to{opacity:1;transform:none}}
+.sp-title{font-size:40px;font-weight:900;color:#fff;letter-spacing:-1.5px;animation:spFade .5s ease .6s both}
+.sp-title span{color:#4AE89B}
+.sp-sub{font-size:14px;color:rgba(255,255,255,.5);margin-top:8px;animation:spFade .5s ease .75s both}
+@keyframes spFade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.sp-bar{width:48px;height:3px;background:rgba(255,255,255,.2);border-radius:2px;margin-top:48px;overflow:hidden;animation:spFade .3s ease .9s both}
+.sp-bar-fill{height:100%;width:0;background:#fff;border-radius:2px;animation:spLoad 1.6s .9s ease forwards}
+@keyframes spLoad{to{width:100%}}
+
+/* ── ERROR STATE ── */
+#errState{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;background:#F2F4F8;text-align:center}
+
+/* ── APP SHELL ── */
+#app{display:flex;flex-direction:column;height:100dvh;max-height:100dvh;overflow:hidden}
+.hdr{flex-shrink:0;padding:14px 20px 12px;background:#fff;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(0,0,0,.06);position:relative;z-index:10}
+.hdr-logo{font-size:22px;font-weight:900;color:#0F1923;letter-spacing:-.6px;line-height:1}
+.hdr-logo span{color:#1C6EFF}
+.hdr-sub{font-size:12.5px;color:#7A8899;margin-top:2px;font-weight:500}
+.hdr-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#1C6EFF,#0AB5FF);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 12px rgba(28,110,255,.3);flex-shrink:0;cursor:pointer;transition:transform .15s}
+.hdr-avatar:active{transform:scale(.92)}
+
+/* ── SCREENS ── */
+.screens{flex:1;overflow:hidden;position:relative}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;display:none;background:#F2F4F8}
+.screen.active{display:block;animation:scrIn .28s ease}
+@keyframes scrIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.screen::-webkit-scrollbar{display:none}
+.s-pad{padding:0 16px;padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+
+/* ── BOTTOM NAV ── */
+.bnav{flex-shrink:0;background:#fff;border-top:1px solid rgba(0,0,0,.07);display:flex;align-items:center;padding:6px 0;padding-bottom:max(6px,env(safe-area-inset-bottom));position:relative}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border:none;background:none;cursor:pointer;border-radius:14px;transition:transform .15s}
+.bnav-item:active{transform:scale(.88)}
+.bnav-icon{font-size:22px;line-height:1;transition:transform .2s}
+.bnav-label{font-size:10px;font-weight:600;color:#9BA8B5;transition:color .2s}
+.bnav-item.active .bnav-label{color:#1C6EFF}
+.bnav-item.active .bnav-icon{transform:scale(1.15)}
+.bnav-center{flex:0 0 68px;display:flex;align-items:center;justify-content:center;padding-bottom:4px}
+.bnav-octo{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#1C6EFF,#0033CC);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 4px 20px rgba(28,110,255,.45);cursor:pointer;transition:transform .15s;border:3px solid #fff;margin-bottom:4px}
+.bnav-octo:active{transform:scale(.9)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:calc(82px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(16px);background:#0F1923;color:#fff;padding:11px 22px;border-radius:50px;font-size:13.5px;font-weight:600;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── MODAL ── */
+.mover{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:500;display:flex;align-items:flex-end;animation:mfade .2s}
+@keyframes mfade{from{opacity:0}to{opacity:1}}
+.mbox{background:#fff;border-radius:26px 26px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));width:100%;max-height:82dvh;overflow-y:auto;animation:mup .3s cubic-bezier(.34,1.56,.64,1)}
+.mbox::-webkit-scrollbar{display:none}
+@keyframes mup{from{transform:translateY(100%)}to{transform:none}}
+.m-handle{width:40px;height:4px;background:#E4E8F0;border-radius:2px;margin:0 auto 20px}
+.m-title{font-size:20px;font-weight:900;color:#0F1923;margin-bottom:16px;letter-spacing:-.4px}
+.m-row{display:flex;justify-content:space-between;align-items:flex-start;padding:11px 0;border-bottom:1px solid #F0F4F8;gap:12px}
+.m-row:last-of-type{border-bottom:none}
+.m-lbl{font-size:13.5px;color:#6B7A8D}
+.m-val{font-size:14px;font-weight:800;color:#0F1923;text-align:right}
+
+/* ── UTILS ── */
+.card{background:#fff;border-radius:20px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.05)}
+.lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9BA8B5}
+.sec-title{font-size:20px;font-weight:800;color:#0F1923;letter-spacing:-.4px;margin:18px 0 12px}
+.green{color:#10B981}.red{color:#EF4444}.orange{color:#F59E0B}.blue{color:#1C6EFF}
+.anim>*{animation:cardIn .35s ease backwards}
+.anim>*:nth-child(1){animation-delay:.04s}.anim>*:nth-child(2){animation-delay:.09s}
+.anim>*:nth-child(3){animation-delay:.14s}.anim>*:nth-child(4){animation-delay:.19s}
+.anim>*:nth-child(5){animation-delay:.24s}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ── DASHBOARD ── */
+.hero-banner{margin:14px 0 12px;background:linear-gradient(120deg,#1344C8 0%,#1C6EFF 55%,#1B8FFF 100%);border-radius:22px;padding:22px 20px 18px;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(28,110,255,.35)}
+.hero-banner::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.07)}
+.hero-banner::after{content:'';position:absolute;bottom:-40px;left:40px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.04)}
+.hero-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.6);position:relative;z-index:1}
+.hero-val{font-size:58px;font-weight:900;color:#fff;letter-spacing:-3px;line-height:1;position:relative;z-index:1;margin:4px 0 2px}
+.hero-val span{font-size:24px;font-weight:600;opacity:.75;letter-spacing:-1px}
+.hero-desc{font-size:13px;color:rgba(255,255,255,.55);position:relative;z-index:1}
+.hero-tags{display:flex;gap:8px;margin-top:14px;position:relative;z-index:1;flex-wrap:wrap}
+.htag{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:50px;font-size:12px;font-weight:700;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.mc{background:#fff;border-radius:18px;padding:14px 15px;box-shadow:0 2px 8px rgba(0,0,0,.055);border:1px solid rgba(0,0,0,.05)}
+.mc .lbl{margin-bottom:8px;display:block}
+.mc-val{font-size:30px;font-weight:900;letter-spacing:-1.2px;line-height:1.05;color:#0F1923}
+.mc-val sub{font-size:13px;font-weight:600;opacity:.65;letter-spacing:0}
+.mc-trend{font-size:11.5px;font-weight:700;margin-top:5px}
+.circ-row{background:#fff;border-radius:18px;padding:14px 15px;margin-bottom:8px;display:flex;align-items:center;gap:13px;box-shadow:0 2px 8px rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.05)}
+.circ-icon{width:44px;height:44px;border-radius:13px;background:#EEF3FF;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.circ-info{flex:1;min-width:0}
+.circ-name{font-size:15px;font-weight:700;color:#0F1923}
+.circ-loc{font-size:12px;color:#9BA8B5;margin-top:1px}
+.circ-bar{height:4px;background:#F0F4F8;border-radius:2px;margin-top:7px;overflow:hidden}
+.circ-bar-fill{height:100%;border-radius:2px}
+.circ-kw{font-size:14px;font-weight:800;flex-shrink:0}
+
+/* ── CONSUMO ── */
+.seg{display:flex;background:#EEF2F7;border-radius:14px;padding:3px;gap:2px;margin:14px 0}
+.seg-btn{flex:1;padding:9px 4px;font-size:13px;font-weight:700;border:none;border-radius:11px;background:none;color:#9BA8B5;cursor:pointer;transition:all .2s;font-family:inherit}
+.seg-btn.on{background:#fff;color:#0F1923;box-shadow:0 1px 6px rgba(0,0,0,.1)}
+.bar-chart-days{display:flex;align-items:flex-end;justify-content:space-between;height:72px;padding:0 2px;margin:4px 0 8px;gap:4px}
+.bcd{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}
+.bcd-bar{width:100%;border-radius:5px 5px 0 0;min-height:5px}
+.bcd-val{font-size:9.5px;font-weight:800;color:#0F1923}
+.bcd-lbl{font-size:9.5px;color:#9BA8B5;font-weight:600}
+.comp-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.comp-lbl-txt{font-size:13px;font-weight:600;color:#6B7A8D;width:36px;flex-shrink:0}
+.comp-bar-wrap{flex:1;height:6px;background:#EEF2F7;border-radius:3px;overflow:hidden}
+.comp-bar-fill{height:100%;border-radius:3px}
+.comp-val{font-size:13px;font-weight:800;color:#0F1923;width:50px;text-align:right;flex-shrink:0}
+.tarifa-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+.tarifa-card{border-radius:14px;padding:12px;text-align:center}
+.tarifa-card.fp{background:#EDF7ED}.tarifa-card.int{background:#FFF8EC}.tarifa-card.ponta{background:#FEEEEE}
+.tarifa-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.7px}
+.tarifa-lbl.fp{color:#10B981}.tarifa-lbl.int{color:#F59E0B}.tarifa-lbl.ponta{color:#EF4444}
+.tarifa-val{font-size:18px;font-weight:900;letter-spacing:-.5px;margin:4px 0 2px}
+.tarifa-val.fp{color:#0D9966}.tarifa-val.int{color:#D97706}.tarifa-val.ponta{color:#DC2626}
+.tarifa-time{font-size:10px;color:#9BA8B5;font-weight:600}
+.bandeira-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:50px;font-size:12px;font-weight:700}
+
+/* ── FATURA ── */
+.fat-hero{background:linear-gradient(120deg,#1344C8 0%,#1C6EFF 60%,#1B8FFF 100%);border-radius:22px;padding:24px 20px;text-align:center;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(28,110,255,.3);margin:14px 0 20px}
+.fat-hero::before{content:'';position:absolute;top:-50px;right:-50px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.08)}
+.fat-hero::after{content:'';position:absolute;bottom:-40px;left:-20px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.04)}
+.fat-mes{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.6);margin-bottom:10px;position:relative;z-index:1}
+.fat-valor{position:relative;z-index:1;line-height:1;margin-bottom:6px}
+.fat-valor .pre{font-size:20px;font-weight:800;color:rgba(255,255,255,.7);vertical-align:top;margin-top:10px;display:inline-block}
+.fat-valor .int{font-size:56px;font-weight:900;color:#fff;letter-spacing:-2px}
+.fat-valor .dec{font-size:22px;font-weight:700;color:rgba(255,255,255,.75);vertical-align:top;margin-top:14px;display:inline-block}
+.fat-desc{font-size:12.5px;color:rgba(255,255,255,.5);margin-bottom:14px;position:relative;z-index:1}
+.fat-band{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);padding:7px 16px;border-radius:50px;font-size:12.5px;font-weight:700;color:#fff;position:relative;z-index:1}
+.fat-band .dot{width:8px;height:8px;border-radius:50%}
+.det-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #F0F4F8}
+.det-row:last-of-type{border-bottom:none}
+.det-lbl{font-size:14px;color:#3A4A5C;font-weight:500;display:flex;align-items:center;gap:8px}
+.det-val{font-size:14.5px;font-weight:800;color:#0F1923}
+.det-total .det-lbl{font-size:15px;font-weight:800;color:#0F1923}
+.det-total .det-val{font-size:15px;font-weight:900;color:#1C6EFF}
+.fat-hist-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.fat-hist-mes{font-size:13px;font-weight:700;color:#6B7A8D;width:28px;flex-shrink:0}
+.fat-hist-bar-wrap{flex:1;height:8px;border-radius:4px;overflow:hidden;background:#EEF2F7}
+.fat-hist-fill{height:100%;border-radius:4px}
+.fat-hist-val{font-size:13px;font-weight:800;width:60px;text-align:right;flex-shrink:0}
+
+/* ── DICAS ── */
+.pot-card{background:#F0FDF6;border:1px solid #A7F3D0;border-radius:18px;padding:18px;display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.pot-lbl{font-size:12px;font-weight:700;color:#10B981;margin-bottom:2px}
+.pot-val{font-size:30px;font-weight:900;color:#10B981;letter-spacing:-1px;line-height:1}
+.pot-val span{font-size:14px;font-weight:600;opacity:.7}
+.dica-card{background:#fff;border-radius:18px;padding:16px;display:flex;gap:14px;align-items:flex-start;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.055);border:1px solid rgba(0,0,0,.05)}
+.dica-icon{font-size:34px;flex-shrink:0;width:44px;text-align:center}
+.dica-body{flex:1;min-width:0}
+.dica-title{font-size:15px;font-weight:800;color:#0F1923;margin-bottom:4px}
+.dica-desc{font-size:13px;color:#6B7A8D;line-height:1.5}
+.dica-econ{font-size:13px;font-weight:800;color:#10B981;margin-top:7px}
+.dica-tag{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-top:7px}
+.tag-high{background:#FEE2E2;color:#EF4444}.tag-easy{background:#FEF3C7;color:#D97706}
+.tag-now{background:#DCFCE7;color:#16A34A}.tag-inv{background:#EDE9FE;color:#7C3AED}
+
+/* ── FORMS ── */
+.form-lbl{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#6B7A8D;display:block;margin-bottom:6px}
+.form-inp{width:100%;padding:14px 16px;background:#F7F9FC;border:1.5px solid #E8EDF4;border-radius:14px;color:#0F1923;font-size:16px;font-family:inherit;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+.form-inp:focus{border-color:#1C6EFF;box-shadow:0 0 0 3px rgba(28,110,255,.1)}
+.form-inp::placeholder{color:#BCC5D0}
+.form-grp{margin-bottom:14px}
+.btn{width:100%;padding:16px;border-radius:14px;border:none;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;transition:transform .15s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,#1344C8,#1C6EFF);color:#fff;box-shadow:0 6px 20px rgba(28,110,255,.35)}
+.btn-ghost{background:#EEF2F7;color:#6B7A8D;font-weight:700}
+.btn-sm{padding:10px 16px;font-size:14px;width:auto;border-radius:10px}
+.btn-row{display:flex;gap:10px;margin-top:10px}
+.cprev{background:linear-gradient(135deg,rgba(28,110,255,.05),rgba(14,165,233,.04));border:1.5px solid rgba(28,110,255,.12);border-radius:14px;padding:14px 16px;margin:12px 0}
+.cprev-title{font-size:12px;font-weight:800;color:#1C6EFF;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.cprev-row{display:flex;justify-content:space-between;font-size:13px;color:#6B7A8D;padding:3px 0}
+.cprev-row strong{font-weight:800;color:#0F1923}
+.hcard{background:#fff;border-radius:18px;padding:15px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.055);border:1px solid rgba(0,0,0,.05);cursor:pointer;transition:transform .12s}
+.hcard:active{transform:scale(.98)}
+.hcard-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.hcard-mes{font-size:15px;font-weight:800;color:#0F1923}
+.hcard-g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hcard-item .lbl{font-size:10px;margin-bottom:2px}
+.hcard-item .v{font-size:14.5px;font-weight:800}
+.saldo-tag{display:inline-block;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:800;margin-top:8px}
+.sp{background:#DCFCE7;color:#16A34A}.sn{background:#FEE2E2;color:#DC2626}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="sp-icon" id="splashIcon">⚡</div>
+  <div class="sp-title">Energia <span>Octo</span></div>
+  <div class="sp-sub" id="splashSub">Monitor Inteligente de Energia</div>
+  <div class="sp-bar"><div class="sp-bar-fill"></div></div>
+</div>
+
+<!-- ERROR STATE -->
+<div id="errState" style="display:none">
+  <div style="font-size:64px;margin-bottom:20px">⚠️</div>
+  <div style="font-size:22px;font-weight:900;color:#0F1923;margin-bottom:8px">Link inválido</div>
+  <div style="font-size:14px;color:#9BA8B5;line-height:1.6;max-width:280px" id="errMsg">Este link não está associado a nenhum cliente. Solicite um novo link ao administrador.</div>
+  <div style="margin-top:24px;padding:12px 20px;background:#EEF3FF;border-radius:14px;font-size:13px;color:#1C6EFF;font-weight:600">Contate o suporte EnergiaOcto</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL -->
+<div class="mover" id="modal" style="display:none" onclick="closeMod(event)">
+  <div class="mbox"><div class="m-handle"></div><div id="mbody"></div></div>
+</div>
+
+<!-- APP PÚBLICO -->
+<div id="app" style="display:none">
+  <header class="hdr">
+    <div>
+      <div class="hdr-logo" id="hdrTitle">Energia<span>Octo</span> ⚡</div>
+      <div class="hdr-sub" id="hdrSub">Carregando...</div>
+    </div>
+    <div class="hdr-avatar" id="hdrAvatar">⚡</div>
+  </header>
+
+  <div class="screens">
+    <!-- INÍCIO -->
+    <div class="screen active" id="s-inicio"><div class="s-pad anim" id="inicioContent"></div></div>
+    <!-- CONSUMO -->
+    <div class="screen" id="s-consumo"><div class="s-pad anim" id="consumoContent"></div></div>
+    <!-- FATURA -->
+    <div class="screen" id="s-fatura"><div class="s-pad anim" id="faturaContent"></div></div>
+    <!-- DICAS -->
+    <div class="screen" id="s-config"><div class="s-pad anim" id="configContent"></div></div>
+    <!-- REGISTRO -->
+    <div class="screen" id="s-registro">
+      <div class="s-pad">
+        <div class="sec-title">📋 Registro Mensal</div>
+        <div class="card" style="padding:16px">
+          <div class="form-grp"><label class="form-lbl">Mês / Ano</label><input type="month" class="form-inp" id="rMes"></div>
+          <div class="form-grp"><label class="form-lbl">⚡ Energia Produzida (kWh)</label><input type="number" class="form-inp" id="rProd" placeholder="Ex: 420" inputmode="decimal" step="0.1" min="0"></div>
+          <div class="form-grp"><label class="form-lbl">🏠 Energia Consumida (kWh)</label><input type="number" class="form-inp" id="rCons" placeholder="Ex: 350" inputmode="decimal" step="0.1" min="0"></div>
+          <div class="form-grp"><label class="form-lbl">💰 Tarifa (R$/kWh)</label><input type="number" class="form-inp" id="rTar" placeholder="Ex: 0.98" inputmode="decimal" step="0.01" min="0"></div>
+          <div class="form-grp"><label class="form-lbl">📄 Taxa mínima (R$)</label><input type="number" class="form-inp" id="rTax" placeholder="Ex: 50" inputmode="decimal" step="0.01" min="0"></div>
+          <div class="form-grp"><label class="form-lbl">🏦 Parcela financiamento (R$)</label><input type="number" class="form-inp" id="rParc" placeholder="Ex: 0" inputmode="decimal" step="0.01" min="0"></div>
+          <div class="form-grp"><label class="form-lbl">📝 Observações</label><textarea class="form-inp" id="rObs" placeholder="Observações..." style="resize:vertical;min-height:72px"></textarea></div>
+          <div class="cprev">
+            <div class="cprev-title">⚙️ Cálculo automático</div>
+            <div class="cprev-row"><span>Saldo de energia</span><strong id="pvSaldo">—</strong></div>
+            <div class="cprev-row"><span>Economia estimada</span><strong id="pvEcon">—</strong></div>
+            <div class="cprev-row"><span>Saldo financeiro</span><strong id="pvFin">—</strong></div>
+            <div class="cprev-row"><span>Autossuficiência</span><strong id="pvAuto">—</strong></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-ghost btn-sm" onclick="limparReg()">🗑 Limpar</button>
+            <button class="btn btn-primary" style="flex:1" onclick="salvarReg()">💾 Salvar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV (gerado dinamicamente com base nas telas habilitadas) -->
+  <nav class="bnav" id="bottomNav"></nav>
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   UTILS
+════════════════════════════════════════ */
+const R=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const K=v=>(+v||0).toLocaleString('pt-BR',{maximumFractionDigits:1})+' kWh';
+const P=v=>(+v||0).toFixed(1)+'%';
+const N=v=>+v||0;
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const MESES_FULL=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MESES_ABR=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const BD_COR={'Verde':'#10B981','Amarela':'#F59E0B','Vermelha 1':'#EF4444','Vermelha 2':'#DC2626','Escassez':'#7C3AED'};
+const BD_EMJ={'Verde':'🟢','Amarela':'🟡','Vermelha 1':'🔴','Vermelha 2':'🔴','Escassez':'⛔'};
+const BANDEIRAS={'Verde':'🟢 Verde — Tarifa Normal','Amarela':'🟡 Amarela — Atenção','Vermelha 1':'🔴 Vermelha Nível 1','Vermelha 2':'🔴 Vermelha Nível 2','Escassez':'⛔ Escassez Hídrica'};
+
+/* ════════════════════════════════════════
+   CLIENTE ISOLADO — detecta ?id= na URL
+════════════════════════════════════════ */
+const CLIENT_ID = new URLSearchParams(location.search).get('id');
+
+// Storage compartilhado com admin.html (mesmo domínio/localStorage)
+const getPerfil=id=>JSON.parse(localStorage.getItem(`eo_perfil_${id}`)||'null');
+const getRegs=id=>JSON.parse(localStorage.getItem(`eo_regs_${id}`)||'[]');
+const setRegs=(id,d)=>localStorage.setItem(`eo_regs_${id}`,JSON.stringify(d));
+
+// Atalhos para o cliente atual
+// Usa _ACTIVE_ID (resolvido no init) ou fallback para CLIENT_ID ou demo
+const activeId=()=>window._ACTIVE_ID||CLIENT_ID||DEMO_ID;
+const cli=()=>getPerfil(activeId())||null;
+const regs=()=>getRegs(activeId());
+const saveRegs=d=>setRegs(activeId(),d);
+
+/* ════════════════════════════════════════
+   TOAST / MODAL
+════════════════════════════════════════ */
+let _tt;
+function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('on'),2800);}
+function openMod(html){document.getElementById('mbody').innerHTML=html;document.getElementById('modal').style.display='flex';}
+function closeMod(e){if(!e||e.target===document.getElementById('modal'))document.getElementById('modal').style.display='none';}
+
+/* ════════════════════════════════════════
+   NAVEGAÇÃO
+════════════════════════════════════════ */
+let cur='inicio';
+function nav(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  const navBtn=document.getElementById('n-'+id);if(navBtn) navBtn.classList.add('active');
+  cur=id;updateHeader();
+  if(id==='inicio') renderInicio();
+  if(id==='consumo') renderConsumo();
+  if(id==='fatura') renderFatura();
+  if(id==='config') renderDicas();
+  if(id==='registro') preReg();
+}
+
+function updateHeader(){
+  const p=cli();if(!p) return;
+  const HDRS={
+    inicio:[`Energia<span style="color:#1C6EFF">Octo</span> ⚡`,`Bem-vindo, ${esc(p.nome)} ${p.saudacao||''}`],
+    consumo:['Consumo',p.nrMedidor?'Medidor '+p.nrMedidor:'Análise de consumo'],
+    fatura:['Fatura',p.vencimentoDia?`Vencimento: dia ${p.vencimentoDia}`:'Sua fatura mensal'],
+    config:['Dicas de Economia','Personalizadas para você'],
+    registro:['Registro Mensal','Inserir dados mensais'],
+  };
+  const h=HDRS[cur]||HDRS.inicio;
+  document.getElementById('hdrTitle').innerHTML=h[0];
+  document.getElementById('hdrSub').innerHTML=h[1];
+}
+
+function buildNav(){
+  const p=cli();if(!p) return;
+  // Monta nav apenas com telas habilitadas
+  const items=[];
+  if(p.showInicio!==false) items.push({id:'inicio',icon:'⚡',label:'Início'});
+  if(p.showConsumo!==false) items.push({id:'consumo',icon:'📊',label:'Consumo'});
+  // centro (polvo) sempre na posição central
+  if(p.showFatura!==false) items.push({id:'fatura',icon:'💰',label:'Fatura'});
+  if(p.showDicas!==false) items.push({id:'config',icon:'🌿',label:'Dicas'});
+
+  const nav=document.getElementById('bottomNav');
+  // Monta com polvo no centro
+  const half=Math.floor(items.length/2);
+  let html='';
+  items.forEach((it,i)=>{
+    if(i===half&&p.showRegistro!==false){
+      html+=`<div class="bnav-center"><div class="bnav-octo" onclick="nav('registro')">🐙</div></div>`;
+    }
+    html+=`<button class="bnav-item ${it.id==='inicio'?'active':''}" id="n-${it.id}" onclick="nav('${it.id}')">
+      <span class="bnav-icon">${it.icon}</span>
+      <span class="bnav-label">${it.label}</span>
+    </button>`;
+  });
+  if(p.showRegistro!==false&&items.length%2===0){
+    html+=`<div class="bnav-center"><div class="bnav-octo" onclick="nav('registro')">🐙</div></div>`;
+  }
+  nav.innerHTML=html;
+}
+
+/* ════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════ */
+function renderInicio(){
+  const p=cli();const rs=regs();
+  const el=document.getElementById('inicioContent');
+  updateHeader();
+
+  if(!rs.length){
+    el.innerHTML=`<div style="padding-top:20px"><div class="card" style="text-align:center;padding:40px 20px"><div style="font-size:56px;margin-bottom:16px">⚡</div><div style="font-size:18px;font-weight:800">Olá, ${esc(p.nome)}!</div><div style="font-size:13.5px;color:#9BA8B5;line-height:1.6;margin-top:8px">Nenhum registro ainda. Adicione o primeiro dado mensal pelo botão 🐙.</div></div></div>`;
+    return;
+  }
+
+  const sorted=[...rs].sort((a,b)=>b.mes.localeCompare(a.mes));
+  const u=sorted[0];
+  const prod=N(u.producao),cons=N(u.consumo);
+  const tar=N(u.tarifa)||N(p.tarifaPadrao)||0;
+  const econ=prod*tar;
+  const [ano,mm]=(u.mes||'').split('-');
+  const mesL=mm?`${MESES_ABR[+mm-1]}/${ano}`:u.mes;
+  const meta=N(p.meta)||300;
+  const metaPct=Math.min((prod/meta)*100,100);
+  const bdCor=BD_COR[p.bandeira]||'#10B981';
+  const bdEmj=BD_EMJ[p.bandeira]||'🟢';
+
+  const cCores=['#1C6EFF','#F59E0B','#10B981'];
+  const cIcons=['❄️','🍳','💡'];
+  const cKW=[0.86,0.62,0.24];const cPct=[85,62,24];
+  const circs=[1,2,3].filter(i=>p['circ'+i+'On']).map(i=>({
+    icon:cIcons[i-1],name:p['circ'+i+'Nome']||'Circuito '+i,
+    loc:p['circ'+i+'Loc']||'—',kw:cKW[i-1],cor:cCores[i-1],pct:cPct[i-1]
+  }));
+
+  el.innerHTML=`
+    <div class="hero-banner">
+      <div class="hero-lbl">Produção Mensal · ${mesL}</div>
+      <div class="hero-val">${prod.toFixed(0)}<span> kWh</span></div>
+      <div class="hero-desc">Sistema solar em operação</div>
+      <div class="hero-tags">${p.showBandeira!==false?`<span class="htag">Bandeira <span style="color:${bdCor};margin-left:4px">${bdEmj} ${p.bandeira}</span></span>`:''}</div>
+    </div>
+    <div class="g2">
+      <div class="mc"><span class="lbl">📊 Consumo</span><div class="mc-val">${cons.toFixed(0)}<sub> kWh</sub></div><div class="mc-trend green">↓ 8% vs anterior</div></div>
+      <div class="mc"><span class="lbl">💰 Economia</span><div class="mc-val" style="font-size:24px">${R(econ)}</div><div class="mc-trend green">↓ ${R(econ*0.1)} economizados</div></div>
+    </div>
+    <div class="g2">
+      ${p.showMetaVerde!==false?`<div class="mc"><span class="lbl">🌿 Meta Verde</span><div class="mc-val">${metaPct.toFixed(0)}<sub> %</sub></div><div style="height:4px;background:#EEF2F7;border-radius:2px;margin-top:8px;overflow:hidden"><div style="width:${metaPct}%;height:100%;background:#10B981;border-radius:2px"></div></div><div style="font-size:11px;color:#10B981;font-weight:700;margin-top:5px">${prod.toFixed(0)}/${meta} kWh</div></div>`:`<div class="mc"><span class="lbl">⚖️ Saldo</span><div class="mc-val ${prod-cons>=0?'green':'red'}" style="font-size:20px">${K(prod-cons)}</div></div>`}
+      ${p.showHorarioSolar!==false?`<div class="mc"><span class="lbl">☀️ Horário Solar</span><div class="mc-val">34<sub> h</sub></div><div class="mc-trend orange">↑ Meta: 50h</div></div>`:`<div class="mc"><span class="lbl">🌿 Autossuf.</span><div class="mc-val blue">${P(cons>0?(prod/cons)*100:0)}</div></div>`}
+    </div>
+    ${p.showCircuitos!==false&&circs.length?`<div class="sec-title" style="margin-top:6px">Circuitos Ativos</div>${circs.map(c=>`<div class="circ-row"><div class="circ-icon">${c.icon}</div><div class="circ-info"><div class="circ-name">${esc(c.name)}</div><div class="circ-loc">${esc(c.loc)}</div><div class="circ-bar"><div class="circ-bar-fill" style="width:${c.pct}%;background:${c.cor}"></div></div></div><div class="circ-kw" style="color:${c.cor}">${c.kw.toFixed(2)}kW</div></div>`).join('')}`:''}
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-ghost" style="flex:1;padding:14px;font-size:14px;font-weight:800" onclick="verHistorico()">📊 Histórico</button>
+      <button class="btn btn-primary" style="flex:1;padding:14px;font-size:14px;font-weight:800" onclick="nav('registro')">+ Registro</button>
+    </div><div style="height:8px"></div>`;
+}
+
+/* ════════════════════════════════════════
+   CONSUMO
+════════════════════════════════════════ */
+function renderConsumo(){
+  const p=cli()||{};const el=document.getElementById('consumoContent');
+  const dias=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  const vals=[8.4,10.2,6.7,9.1,5.8,11.1,4.7];
+  const cores=['#1C6EFF','#F59E0B','#10B981','#1C6EFF','#A78BFA','#EF4444','#10B981'];
+  const maxV=Math.max(...vals);
+  const bdCor=BD_COR[p.bandeira]||'#10B981';
+  const bdEmj=BD_EMJ[p.bandeira]||'🟢';
+  el.innerHTML=`
+    <div class="seg"><button class="seg-btn" onclick="segClick(this)">Dia</button><button class="seg-btn on" onclick="segClick(this)">Semana</button><button class="seg-btn" onclick="segClick(this)">Mês</button><button class="seg-btn" onclick="segClick(this)">Ano</button></div>
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:16px;font-weight:800">Consumo por Dia</div><div style="background:#EEF2F7;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;color:#6B7A8D">kWh</div></div>
+      <div class="bar-chart-days">${dias.map((d,i)=>`<div class="bcd"><div class="bcd-val">${vals[i]}</div><div class="bcd-bar" style="height:${Math.max((vals[i]/maxV)*64,5)}px;background:${cores[i]}"></div><div class="bcd-lbl">${d}</div></div>`).join('')}</div>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div style="font-size:16px;font-weight:800">vs Semana Anterior</div><div style="background:#DCFCE7;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:800;color:#10B981">↓ 8%</div></div>
+      <div class="comp-row"><div class="comp-lbl-txt">Esta</div><div class="comp-bar-wrap"><div class="comp-bar-fill" style="width:78%;background:#1C6EFF"></div></div><div class="comp-val blue">56kWh</div></div>
+      <div class="comp-row" style="margin-bottom:0"><div class="comp-lbl-txt">Ant.</div><div class="comp-bar-wrap"><div class="comp-bar-fill" style="width:90%;background:#D1D9E6"></div></div><div class="comp-val" style="color:#9BA8B5">61kWh</div></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:16px;font-weight:800">Tarifa Hoje</div><div class="bandeira-badge" style="color:${bdCor};background:${bdCor}18;border:1px solid ${bdCor}33">${bdEmj} ${p.bandeira||'Verde'}</div></div>
+      <div class="tarifa-grid">
+        <div class="tarifa-card fp"><div class="tarifa-lbl fp">Fora Ponta</div><div class="tarifa-val fp">R$${p.tarifaFP||'0,65'}</div><div class="tarifa-time">00h–18h</div></div>
+        <div class="tarifa-card int"><div class="tarifa-lbl int">Intermediário</div><div class="tarifa-val int">R$${p.tarifaInt||'0,87'}</div><div class="tarifa-time">18h–19h</div></div>
+        <div class="tarifa-card ponta"><div class="tarifa-lbl ponta">Ponta</div><div class="tarifa-val ponta">R$${p.tarifaPonta||'1,34'}</div><div class="tarifa-time">19h–21h</div></div>
+      </div>
+    </div>`;
+}
+function segClick(btn){btn.closest('.seg').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
+
+/* ════════════════════════════════════════
+   FATURA
+════════════════════════════════════════ */
+function renderFatura(){
+  const p=cli()||{};const rs=regs();const el=document.getElementById('faturaContent');
+  const sorted=[...rs].sort((a,b)=>b.mes.localeCompare(a.mes));const u=sorted[0];
+  if(!u){el.innerHTML=`<div style="padding:40px 20px;text-align:center;color:#9BA8B5">Nenhum dado disponível.</div>`;return;}
+  const cons=N(u.consumo);const tar=N(u.tarifa)||N(p.tarifaPadrao)||0.653;
+  const taxa=N(u.taxa);const parc=N(u.parcela);
+  const eEl=cons*tar;const tusd=eEl*0.143;const ilum=7.80;const enc=5.00;
+  const total=eEl+tusd+ilum+enc;
+  const[ano,mm]=(u.mes||'2025-04').split('-');
+  const mesL=mm?`${MESES_FULL[+mm-1].toUpperCase()} ${ano}`:u.mes;
+  const totalStr=total.toFixed(2);const[tInt,tDec]=totalStr.split('.');
+  const bdDot=BD_COR[p.bandeira]||'#4AE89B';
+  const bdTxt=BANDEIRAS[p.bandeira]||'Bandeira Verde — Tarifa Normal';
+  const hist3=sorted.slice(0,3).reverse();
+  const maxH=hist3.reduce((mx,r)=>Math.max(mx,N(r.consumo)*tar),1);
+  const histHtml=hist3.map((r,i)=>{
+    const[,m]=(r.mes||'').split('-');const v=N(r.consumo)*tar;
+    return `<div class="fat-hist-row"><div class="fat-hist-mes">${m?MESES_ABR[+m-1]:r.mes}</div><div class="fat-hist-bar-wrap"><div class="fat-hist-fill" style="width:${(v/maxH)*100}%;background:${['#F59E0B','#1C6EFF','#10B981'][i%3]}"></div></div><div class="fat-hist-val" style="color:${['#F59E0B','#1C6EFF','#10B981'][i%3]}">${i===hist3.length-1?'~':''}${R(v)}</div></div>`;
+  }).join('');
+  el.innerHTML=`
+    <div class="fat-hero">
+      <div class="fat-mes">${mesL}</div>
+      <div class="fat-valor"><span class="pre">R$</span><span class="int">${tInt}</span><span class="dec">,${tDec}</span></div>
+      <div class="fat-desc">${cons} kWh consumidos${p.nrMedidor?' · Medidor '+p.nrMedidor:''}</div>
+      <div class="fat-band"><div class="dot" style="background:${bdDot}"></div>${bdTxt}</div>
+    </div>
+    ${p.distribuidora||p.nrContrato?`<div class="card" style="padding:12px 16px;margin-bottom:14px">${[['Distribuidora',p.distribuidora],['Nº Contrato',p.nrContrato],['Nº Instalação',p.nrInstalacao],['Classe',p.classeConsumidor]].filter(([,v])=>v).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F0F4F8;font-size:13px"><span style="color:#6B7A8D">${k}</span><span style="font-weight:700">${esc(v)}</span></div>`).join('')}</div>`:''}
+    <div style="font-size:19px;font-weight:900;margin-bottom:12px">Detalhamento</div>
+    <div class="card" style="padding:4px 16px;margin-bottom:14px">
+      <div class="det-row"><span class="det-lbl">⚡ Energia elétrica</span><span class="det-val">${R(eEl)}</span></div>
+      <div class="det-row"><span class="det-lbl">🔧 TUSD</span><span class="det-val">${R(tusd)}</span></div>
+      <div class="det-row"><span class="det-lbl">💡 Iluminação pública</span><span class="det-val">${R(ilum)}</span></div>
+      <div class="det-row"><span class="det-lbl">📋 Encargos setoriais</span><span class="det-val">${R(enc)}</span></div>
+      ${taxa?`<div class="det-row"><span class="det-lbl">📄 Taxa mínima</span><span class="det-val">${R(taxa)}</span></div>`:''}
+      ${parc?`<div class="det-row"><span class="det-lbl">🏦 Parcela</span><span class="det-val">${R(parc)}</span></div>`:''}
+      <div class="det-row det-total"><span class="det-lbl" style="font-weight:900">Total</span><span class="det-val">${R(total)}</span></div>
+    </div>
+    ${hist3.length?`<div class="card"><div style="font-size:16px;font-weight:800;margin-bottom:14px">📅 Histórico</div>${histHtml}</div>`:''}
+    <div style="height:8px"></div>`;
+}
+
+/* ════════════════════════════════════════
+   DICAS
+════════════════════════════════════════ */
+function renderDicas(){
+  const el=document.getElementById('configContent');
+  const dicas=[
+    {icon:'❄️',title:'Ajuste o Ar-Condicionado',desc:'Aumentar de 20°C para 23°C reduz até 20% do consumo.',econ:'R$ 34/mês',tag:'tag-high',tLbl:'Alta prioridade'},
+    {icon:'🌙',title:'Horário Fora de Ponta',desc:'Use máquina de lavar após 21h para pagar tarifa menor.',econ:'R$ 12/mês',tag:'tag-easy',tLbl:'Fácil de fazer'},
+    {icon:'💡',title:'Aparelhos em standby',desc:'Desligue da tomada quando não usar para reduzir consumo phantom.',econ:'R$ 8/mês',tag:'tag-now',tLbl:'Agir agora'},
+    {icon:'☀️',title:'Expanda o Sistema Solar',desc:'Aumentar a capacidade pode ampliar sua economia anual.',econ:'R$ 160/mês',tag:'tag-inv',tLbl:'Investimento'},
+  ];
+  const total=dicas.reduce((s,d)=>s+parseInt(d.econ.replace(/\D/g,'')),0);
+  el.innerHTML=`<div style="height:4px"></div><div class="pot-card"><div style="font-size:36px">🎯</div><div><div class="pot-lbl">Potencial de economia</div><div class="pot-val">R$ ${total}<span> /mês</span></div></div></div>${dicas.map(d=>`<div class="dica-card"><div class="dica-icon">${d.icon}</div><div class="dica-body"><div class="dica-title">${d.title}</div><div class="dica-desc">${d.desc}</div><div class="dica-econ">↓ Economize até ${d.econ}</div><span class="dica-tag ${d.tag}">${d.tLbl}</span></div></div>`).join('')}<div style="height:8px"></div>`;
+}
+
+/* ════════════════════════════════════════
+   REGISTRO
+════════════════════════════════════════ */
+function preReg(){
+  const p=cli()||{};const now=new Date();
+  if(!document.getElementById('rMes').value) document.getElementById('rMes').value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  if(p.tarifaPadrao&&!document.getElementById('rTar').value) document.getElementById('rTar').value=p.tarifaPadrao;
+  calcPrev();
+}
+function calcPrev(){
+  const p2=N(document.getElementById('rProd').value);
+  const c=N(document.getElementById('rCons').value);
+  const t=N(document.getElementById('rTar').value);
+  const tx=N(document.getElementById('rTax').value);
+  const pa=N(document.getElementById('rParc').value);
+  const s=p2-c;const ec=p2*t;const fin=ec-tx-pa;const au=c>0?(p2/c)*100:0;
+  const ps=document.getElementById('pvSaldo');if(ps){ps.textContent=(p2||c)?K(s):'—';ps.style.color=s>=0?'#10B981':'#EF4444';}
+  const pe=document.getElementById('pvEcon');if(pe) pe.textContent=(p2&&t)?R(ec):'—';
+  const pf=document.getElementById('pvFin');if(pf){pf.textContent=(p2&&t)?R(fin):'—';pf.style.color=fin>=0?'#10B981':'#EF4444';}
+  const pa2=document.getElementById('pvAuto');if(pa2) pa2.textContent=(p2&&c)?P(au):'—';
+}
+['rProd','rCons','rTar','rTax','rParc'].forEach(id=>{const e=document.getElementById(id);if(e) e.addEventListener('input',calcPrev);});
+function limparReg(){['rMes','rProd','rCons','rTar','rTax','rParc','rObs'].forEach(id=>{const e=document.getElementById(id);if(e) e.value='';});calcPrev();}
+function salvarReg(){
+  const mes=document.getElementById('rMes').value;
+  const prod=document.getElementById('rProd').value;
+  const cons=document.getElementById('rCons').value;
+  const tar=document.getElementById('rTar').value;
+  if(!mes||!prod||!cons||!tar){toast('⚠️ Preencha mês, produção, consumo e tarifa.');return;}
+  const p2=N(prod),c=N(cons),t=N(tar),tx=N(document.getElementById('rTax').value),pa=N(document.getElementById('rParc').value);
+  const reg={id:uid(),mes,producao:prod,consumo:cons,tarifa:tar,
+    taxa:document.getElementById('rTax').value,
+    parcela:document.getElementById('rParc').value,
+    obs:document.getElementById('rObs').value,
+    saldo:(p2-c).toFixed(2),economia:(p2*t).toFixed(2),
+    saldoFin:(p2*t-tx-pa).toFixed(2),autoSuf:(c>0?(p2/c)*100:0).toFixed(2),
+    criado:new Date().toISOString()};
+  const rs=regs();const idx=rs.findIndex(r=>r.mes===mes);
+  if(idx>=0) rs[idx]=reg; else rs.push(reg);
+  saveRegs(rs);limparReg();toast('✅ Registro salvo!');setTimeout(()=>nav('inicio'),800);
+}
+
+/* ════════════════════════════════════════
+   HISTÓRICO
+════════════════════════════════════════ */
+function verHistorico(){
+  const rs=regs();
+  if(!rs.length){openMod('<div class="m-title">📊 Histórico</div><div style="text-align:center;padding:40px 0;color:#9BA8B5;font-size:14px">Nenhum registro encontrado.</div>');return;}
+  const sorted=[...rs].sort((a,b)=>b.mes.localeCompare(a.mes));
+  const cards=sorted.map(r=>{
+    const[ano,mm]=(r.mes||'').split('-');
+    const mesL=mm?`${MESES_FULL[+mm-1]} ${ano}`:r.mes;
+    const s=N(r.saldo);
+    return `<div class="hcard" onclick="verDet('${r.id}')"><div class="hcard-head"><div class="hcard-mes">📅 ${mesL}</div><button class="btn-sm btn btn-ghost" style="background:#FEE2E2;color:#EF4444;padding:6px 10px;font-size:11px" onclick="event.stopPropagation();delReg('${r.id}')">🗑</button></div><div class="hcard-g2"><div class="hcard-item"><div class="lbl">⚡ Produção</div><div class="v" style="color:#F59E0B">${K(N(r.producao))}</div></div><div class="hcard-item"><div class="lbl">🏠 Consumo</div><div class="v blue">${K(N(r.consumo))}</div></div><div class="hcard-item"><div class="lbl">💰 Economia</div><div class="v green">${R(N(r.economia))}</div></div><div class="hcard-item"><div class="lbl">🌿 Autossuf.</div><div class="v">${P(N(r.autoSuf))}</div></div></div><span class="saldo-tag ${s>=0?'sp':'sn'}">${s>=0?'+':''}${K(s)}</span></div>`;
+  }).join('');
+  openMod(`<div class="m-title">📊 Histórico (${rs.length})</div>${cards}`);
+}
+function verDet(id){
+  const r=regs().find(r=>r.id===id);if(!r) return;
+  const[ano,mm]=(r.mes||'').split('-');
+  const mesL=mm?`${MESES_FULL[+mm-1]} ${ano}`:r.mes;const s=N(r.saldo);
+  document.getElementById('mbody').innerHTML=`<div class="m-title">📅 ${mesL}</div><div class="m-row"><span class="m-lbl">⚡ Produzida</span><span class="m-val" style="color:#F59E0B">${K(N(r.producao))}</span></div><div class="m-row"><span class="m-lbl">🏠 Consumida</span><span class="m-val blue">${K(N(r.consumo))}</span></div><div class="m-row"><span class="m-lbl">⚖️ Saldo</span><span class="m-val" style="color:${s>=0?'#10B981':'#EF4444'}">${K(s)}</span></div><div class="m-row"><span class="m-lbl">💰 Economia</span><span class="m-val green">${R(N(r.economia))}</span></div><div class="m-row"><span class="m-lbl">📄 Taxa</span><span class="m-val">${R(N(r.taxa))}</span></div><div class="m-row"><span class="m-lbl">🏦 Parcela</span><span class="m-val">${R(N(r.parcela))}</span></div><div class="m-row"><span class="m-lbl">🏦 Saldo financeiro</span><span class="m-val" style="color:${N(r.saldoFin)>=0?'#10B981':'#EF4444'}">${R(N(r.saldoFin))}</span></div><div class="m-row"><span class="m-lbl">🌿 Autossuf.</span><span class="m-val blue">${P(N(r.autoSuf))}</span></div>${r.obs?`<div class="m-row"><span class="m-lbl">📝 Obs.</span><span class="m-val" style="max-width:200px;text-align:right;font-size:12.5px;white-space:normal">${esc(r.obs)}</span></div>`:''}<div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-ghost" style="flex:1;background:#FEE2E2;color:#EF4444" onclick="delReg('${r.id}')">🗑</button><button class="btn btn-ghost" style="flex:1" onclick="closeMod()">Fechar</button></div>`;
+}
+function delReg(id){
+  const rs=regs().filter(r=>r.id!==id);saveRegs(rs);closeMod();toast('🗑 Registro excluído.');if(cur==='inicio') renderInicio();}
+
+/* ════════════════════════════════════════
+   DEMO SEED — garante dados para preview
+════════════════════════════════════════ */
+const DEMO_ID='demo_preview';
+
+function seedDemoIfNeeded(id){
+  // Se já existe perfil, não faz nada
+  if(getPerfil(id)) return;
+
+  // Cria perfil demo
+  const perfil={
+    nome:'Guilherme Pereira',saudacao:'👋',status:'ativo',
+    cor:'#1C6EFF',emoji:'👨',obs:'',
+    distribuidora:'ENEL São Paulo',nrContrato:'12345678',
+    nrMedidor:'0438221',nrInstalacao:'3001234567',
+    classeConsumidor:'Residencial',grupoTensao:'Baixa Tensão',
+    modalidade:'Convencional',vencimentoDia:'10',
+    tarifaFP:'0,65',tarifaInt:'0,87',tarifaPonta:'1,34',
+    tarifaPadrao:'0.653',bandeira:'Verde',meta:500,
+    circ1Nome:'Ar-Condicionado',circ1Loc:'Quarto principal',circ1On:true,
+    circ2Nome:'Cozinha',circ2Loc:'Fogão + micro-ondas',circ2On:true,
+    circ3Nome:'Iluminação',circ3Loc:'Toda residência',circ3On:true,
+    showCircuitos:true,showMetaVerde:true,showHorarioSolar:true,showBandeira:true,
+    showInicio:true,showConsumo:true,showFatura:true,showDicas:true,showRegistro:true,
+    criado:new Date().toISOString()
+  };
+  localStorage.setItem(`eo_perfil_${id}`,JSON.stringify(perfil));
+
+  // Cria registros demo
+  const regsDemo=[
+    {id:'rd1',mes:'2025-04',producao:'420',consumo:'247',tarifa:'0.653',taxa:'50',parcela:'0',obs:'Mês ensolarado ☀️',saldo:'173',economia:'274.26',saldoFin:'224.26',autoSuf:'170.04',criado:new Date().toISOString()},
+    {id:'rd2',mes:'2025-03',producao:'380',consumo:'290',tarifa:'0.653',taxa:'50',parcela:'0',obs:'Mês nublado',saldo:'90',economia:'248.14',saldoFin:'198.14',autoSuf:'131.03',criado:new Date().toISOString()},
+    {id:'rd3',mes:'2025-02',producao:'310',consumo:'320',tarifa:'0.653',taxa:'50',parcela:'0',obs:'',saldo:'-10',economia:'202.43',saldoFin:'152.43',autoSuf:'96.88',criado:new Date().toISOString()},
+    {id:'rd4',mes:'2025-01',producao:'290',consumo:'280',tarifa:'0.653',taxa:'50',parcela:'0',obs:'',saldo:'10',economia:'189.37',saldoFin:'139.37',autoSuf:'103.57',criado:new Date().toISOString()},
+  ];
+  localStorage.setItem(`eo_regs_${id}`,JSON.stringify(regsDemo));
+
+  // Registra na lista de clientes (para compatibilidade com admin.html)
+  try{
+    const cl=JSON.parse(localStorage.getItem('eo_clientes')||'[]');
+    if(!cl.find(c=>c.id===id)){
+      cl.push({id,nome:'Guilherme Pereira',status:'ativo'});
+      localStorage.setItem('eo_clientes',JSON.stringify(cl));
+    }
+  }catch(e){}
+}
+
+/* ════════════════════════════════════════
+   INIT — detecta CLIENT_ID e exibe app
+════════════════════════════════════════ */
+window.addEventListener('load',()=>{
+  // Resolve qual ID usar:
+  // 1) ?id= na URL  →  usa esse cliente real
+  // 2) Sem ?id=     →  usa dados demo (preview / teste)
+  const resolvedId = CLIENT_ID || DEMO_ID;
+
+  // Se não tem ?id=, semeia dados demo para o preview funcionar
+  if(!CLIENT_ID){
+    seedDemoIfNeeded(DEMO_ID);
+  }
+
+  setTimeout(()=>{
+    document.getElementById('splash').classList.add('out');
+    setTimeout(()=>document.getElementById('splash').remove(),600);
+
+    const p=getPerfil(resolvedId);
+
+    if(!p){
+      // ID na URL mas não encontrado no storage
+      document.getElementById('errState').style.display='flex';
+      document.getElementById('errMsg').textContent=`Cliente não encontrado (id: ${resolvedId}). Verifique o link com o administrador ou abra o admin.html primeiro.`;
+      return;
+    }
+
+    if(p.status==='inativo'){
+      document.getElementById('errState').style.display='flex';
+      document.getElementById('errMsg').textContent='Este acesso está inativo. Entre em contato com o administrador.';
+      return;
+    }
+
+    // Troca CLIENT_ID efetivo pelo resolvido
+    // (sobrescreve a constante de leitura via closure)
+    window._ACTIVE_ID = resolvedId;
+
+    // Personaliza splash
+    const splashSub=document.getElementById('splashSub');
+    if(splashSub) splashSub.textContent=!CLIENT_ID?'Modo demonstração':'Olá, '+p.nome+'!';
+
+    // Atualiza título da página
+    document.title=`EnergiaOcto — ${p.nome}`;
+
+    // Mostra app
+    document.getElementById('app').style.display='flex';
+
+    // Nav dinâmico conforme telas habilitadas para este cliente
+    buildNav();
+    renderInicio();
+    updateHeader();
+
+    // Avatar personalizado
+    document.getElementById('hdrAvatar').textContent=p.emoji||'⚡';
+    document.getElementById('hdrAvatar').style.background=`linear-gradient(135deg,${p.cor||'#1C6EFF'},${p.cor||'#0AB5FF'})`;
+    document.getElementById('hdrAvatar').onclick=()=>{
+      if(!CLIENT_ID){
+        toast('🔍 Preview — abra com ?id=SEU_ID para ver seus dados');
+      } else {
+        toast('⚡ '+p.nome+(p.distribuidora?' · '+p.distribuidora:''));
+      }
+    };
+
+  }, 2000);
+});
+
+// anti-zoom iOS
+let _lte=0;
+document.addEventListener('touchend',e=>{const n=Date.now();if(n-_lte<=300)e.preventDefault();_lte=n;},false);
+</script>
+</body>
+</html>
